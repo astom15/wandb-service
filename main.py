@@ -131,7 +131,7 @@ async def log_trace(trace: RecipeTrace):
             "error": {
                 "type": type(e).__name__,
                 "message": str(e),
-                "trace_id": trace.traceId
+                "trace_id": getattr(trace, 'traceId', 'N/A')
             }
         })
         raise HTTPException(status_code=500, detail=str(e))

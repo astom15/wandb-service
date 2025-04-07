@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  wandb-logger-service:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - WANDB_API_KEY=${WANDB_API_KEY}
+      - ENVIRONMENT=${ENVIRONMENT}
+      - SERVICE_VERSION=${SERVICE_VERSION}
