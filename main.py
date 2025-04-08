@@ -1,3 +1,5 @@
+"""FastAPI service for logging recipe generation traces to Weights & Biases."""
+
 import os
 from datetime import datetime
 from typing import Dict, List, Optional, Union
