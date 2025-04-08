@@ -1,11 +1,12 @@
-from typing import List, Dict, Optional, Union
-from datetime import datetime
-
 import os
-import wandb
+from datetime import datetime
+from typing import Dict, List, Optional, Union
+
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+
+import wandb
 
 current_time = datetime.utcnow().isoformat()
 if not os.getenv("RUNNING_IN_DOCKER"):
