@@ -1,12 +1,13 @@
+from typing import List, Dict, Optional, Union
+from datetime import datetime
+
+import os
+import wandb
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List, Dict, Optional, Union
-import wandb
-import os
-from dotenv import load_dotenv
-from datetime import datetime
-current_time = datetime.utcnow().isoformat()
 
+current_time = datetime.utcnow().isoformat()
 if not os.getenv("RUNNING_IN_DOCKER"):
     print("RUNNING_IN_DOCKER IS NOT SET, loading .env file")
     load_dotenv()
