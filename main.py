@@ -129,7 +129,7 @@ async def log_trace(trace: RecipeTrace):
 
         return {"status": "success", "timestamp": current_time}
     except ValueError as ve:
-        raise HTTPException(status_code=400, detail=str(ve))
+        raise HTTPException(status_code=400, detail=str(ve)) from ve
     except Exception as e:
         wandb.log({
             "error": {
@@ -138,13 +138,13 @@ async def log_trace(trace: RecipeTrace):
                 "trace_id": getattr(trace, 'traceId', 'N/A')
             }
         })
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 @app.get("/health")
 async def health_check():
     try:
         if wandb.run is None:
-            raise Exception("W&B run not initialized")
+            raise TypeError("W&B run not initialized")
         return {
             "status": "healthy",
 
@@ -153,7 +153,7 @@ async def health_check():
             "wandb_entity": os.getenv("WANDB_ENTITY", "default")
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
     
 @app.on_event("shutdown")
 async def shutdown_event():
