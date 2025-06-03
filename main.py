@@ -35,7 +35,6 @@ async def lifespan(app: FastAPI):
     weave.finish()
 
 app = FastAPI(lifespan=lifespan)
-
 weave.init(
     "bobby-flAI",
     global_attributes= {
@@ -43,7 +42,7 @@ weave.init(
         "service_version": os.getenv("SERVICE_VERSION", "1.0.0"),
         "model_defaults_temperature": 0.7,
         "model_defaults_max_tokens": 2000
-    },
+    }
 )
 wandb.init(
     project="bobby-flAI",
@@ -107,6 +106,7 @@ def normalize_json(content: str) -> str:
 @weave.op(name="validate-json")
 @app.post("/validate-json")
 async def validate_json(request: JSONValidationRequest):
+    start_time = datetime.now(UTC)
     try:
         # Basic format validation
         content = normalize_json(request.content.strip())
@@ -117,8 +117,6 @@ async def validate_json(request: JSONValidationRequest):
             "json_parsed": False,
             "structure_validated": False
         }
-        
-        start_time = datetime.now(UTC)
         
         # Track array format validation
         if not content.startswith('[') or not content.endswith(']'):
@@ -165,7 +163,7 @@ async def validate_json(request: JSONValidationRequest):
 
         # Parse and validate structure
         try:
-            data = json.loads(content, cls=LenientJSONDecoder)
+            data = json.loads(content)
             validation_steps["json_parsed"] = True
             print("JSON parsing passed")
             
@@ -212,6 +210,13 @@ async def validate_json(request: JSONValidationRequest):
             print(f"JSON parsing failed. Error: {str(e)}")
             print(f"Error location: line {e.lineno}, column {e.colno}")
             print(f"Error message: {e.msg}")
+            # Print the content around the error
+            lines = content.split('\n')
+            if e.lineno > 1:
+                print(f"Line {e.lineno-1}: {lines[e.lineno-2]}")
+            print(f"Line {e.lineno}: {lines[e.lineno-1]}")
+            if e.lineno < len(lines):
+                print(f"Line {e.lineno+1}: {lines[e.lineno]}")
             raise ValueError(f"Invalid JSON format: {str(e)}")
 
     except Exception as e:
@@ -328,7 +333,7 @@ async def health_check():
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
-
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
